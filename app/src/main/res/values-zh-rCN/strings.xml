@@ -1,0 +1,28 @@
+<resources>
+    <string name="accessibility_desc">检测前台应用，只在白名单里的应用中启用手写笔震动反馈。不读取屏幕内容。</string>
+
+    <string name="auto_mode">自动模式（按白名单开关）</string>
+    <string name="auto_mode_hint">开启后，只有白名单里的应用在前台时才震动；其余场景（桌面滑动等）自动关闭。</string>
+    <string name="edit_whitelist">编辑白名单</string>
+
+    <string name="whitelist_title">白名单</string>
+    <string name="whitelist_hint">勾选需要笔震动反馈的应用。输入法也在列表里——想在手写输入框里有震感就勾上对应的输入法。</string>
+    <string name="search_apps">搜索应用</string>
+    <string name="no_match">没有匹配的应用</string>
+    <string name="app_icon">应用图标</string>
+    <string name="whitelist_toggle">加入白名单</string>
+    <string name="ime_suffix">%1$s（输入法）</string>
+
+    <string name="svc_on">前台监听已启用</string>
+    <string name="svc_off">前台监听未启用，自动模式不会生效</string>
+    <string name="svc_open_settings">去开启</string>
+
+    <string name="op_failed">操作失败（未连接？）</string>
+    <string name="err_permission">系统拒绝了权限，这个应用可能没有装在 priv-app 里。</string>
+    <string name="err_service">找不到 Pencil SDK 服务。</string>
+    <string name="err_iface">SDK 接口不匹配（%1$s）。</string>
+    <string name="err_not_connected">尚未连接，先点 Bind。</string>
+    <string name="err_remote">远程调用失败：%1$s</string>
+    <string name="err_unknown">未预期的错误：%1$s</string>
+    <string name="err_no_a11y_settings">打不开无障碍设置</string>
+</resources>

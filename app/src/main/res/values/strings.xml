@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Stylo2 Haptics</string>
+
+    <string name="accessibility_desc">Detects the foreground app so pen haptics are only enabled for apps on your whitelist. Does not read screen content.</string>
+
+    <string name="auto_mode">Auto mode (follow whitelist)</string>
+    <string name="auto_mode_hint">When on, haptics are enabled only while a whitelisted app is in the foreground, and turned off everywhere else (home screen, scrolling, …).</string>
+    <string name="edit_whitelist">Edit whitelist</string>
+
+    <string name="whitelist_title">Whitelist</string>
+    <string name="whitelist_hint">Pick the apps that should get pen haptics. Input methods are listed too — tick your keyboard if you want haptics in its handwriting field.</string>
+    <string name="search_apps">Search apps</string>
+    <string name="no_match">No matching apps</string>
+    <string name="app_icon">App icon</string>
+    <string name="whitelist_toggle">Add to whitelist</string>
+    <string name="ime_suffix">%1$s (input method)</string>
+
+    <string name="svc_on">Foreground detection is on</string>
+    <string name="svc_off">Foreground detection is off — auto mode will not work</string>
+    <string name="svc_open_settings">Enable</string>
+
+    <string name="op_failed">Operation failed (not connected?)</string>
+    <string name="err_permission">Permission denied by system. This app likely lacks the required IOT permission.</string>
+    <string name="err_service">Pencil SDK service not found or not available on this device.</string>
+    <string name="err_iface">Incompatible SDK interface (%1$s).</string>
+    <string name="err_not_connected">Not connected to the SDK. Tap Bind first.</string>
+    <string name="err_remote">Remote call failed: %1$s</string>
+    <string name="err_unknown">Unexpected error: %1$s</string>
+    <string name="err_no_a11y_settings">Could not open accessibility settings</string>
 </resources>
