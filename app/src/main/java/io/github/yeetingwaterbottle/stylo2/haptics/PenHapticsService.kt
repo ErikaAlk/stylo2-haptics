@@ -5,8 +5,10 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -28,6 +30,9 @@ class PenHapticsService : AccessibilityService() {
     @Volatile
     private var currentPkg: String? = null
 
+    private var retryJob: Job? = null
+    private var retries = 0
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.i(TAG, "PenHapticsService connected")
@@ -36,16 +41,51 @@ class PenHapticsService : AccessibilityService() {
         scope.launch {
             Haptics.client(this@PenHapticsService).connection.collect { c ->
                 when (c.state) {
-                    StylusVibrationClient.State.CONNECTED_SDK ->
+                    StylusVibrationClient.State.CONNECTED_SDK -> {
+                        retries = 0
                         Haptics.onConnected(this@PenHapticsService, currentPkg)
-                    StylusVibrationClient.State.DISCONNECTED,
-                    StylusVibrationClient.State.ERROR ->
+                    }
+                    StylusVibrationClient.State.ERROR -> {
                         Haptics.onDisconnected()
+                        scheduleRetry(c.error)
+                    }
+                    StylusVibrationClient.State.DISCONNECTED -> Haptics.onDisconnected()
                     else -> Unit
                 }
             }
         }
         Haptics.bind(this)
+    }
+
+    /**
+     * Retry a failed bind.
+     *
+     * This service starts at boot, and com.oplus.ipemanager may not be ready yet;
+     * without a retry the pen would stay silent for the whole session and the user
+     * would have to open the app and bind by hand.
+     *
+     * Only ERROR is retried. DISCONNECTED is also what a deliberate Unbind from the
+     * UI looks like, and reconnecting after the remote process restarts is already
+     * handled by BIND_AUTO_CREATE.
+     */
+    private fun scheduleRetry(err: StylusVibrationClient.SdkError?) {
+        // A missing privileged permission will not fix itself.
+        if (err is StylusVibrationClient.SdkError.PermissionDenied) {
+            Log.w(TAG, "not retrying: permission denied")
+            return
+        }
+        if (retries >= MAX_RETRIES) {
+            Log.w(TAG, "giving up after $retries bind attempts")
+            return
+        }
+        val wait = RETRY_BASE_MS shl retries
+        retries++
+        Log.i(TAG, "bind failed, retry #$retries in ${wait}ms")
+        retryJob?.cancel()
+        retryJob = scope.launch {
+            delay(wait)
+            Haptics.bind(this@PenHapticsService)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -66,12 +106,17 @@ class PenHapticsService : AccessibilityService() {
 
     override fun onDestroy() {
         instance = null
+        retryJob?.cancel()
         scope.cancel()
         super.onDestroy()
     }
 
     companion object {
         private const val TAG = "Stylo2Haptics"
+
+        /** 2s, 4s, 8s, 16s, 32s — enough to cover a slow boot without spinning forever. */
+        private const val RETRY_BASE_MS = 2_000L
+        private const val MAX_RETRIES = 5
 
         private val IGNORED = setOf(
             "com.android.systemui",
